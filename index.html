@@ -1,0 +1,130 @@
+
+<!doctype html>
+<html manifest="cache.manifest">
+  <head>
+    <meta charset="UTF-8" />
+    <title>coffeeMan</title>
+
+    <!-- Make the app title different than the page title. -->
+    <meta name="apple-mobile-web-app-title"
+          content="coffeeMan">
+
+    <link rel="stylesheet" href="/lib/css/innsbruck.min.css">
+    <link rel="stylesheet" href="/lib/css/font-awesome.min.css">
+    <script src="/lib/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/lib/jqt.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/lib/jqt.offline.min.js" type="application/x-javascript" charset="utf-8"></script>
+    <script>
+        var jQT = new $.jQT({
+            icon: 'jqtouch.png',
+            statusBar: 'default',
+            cacheGetRequests: false,
+            icon: '/img/icon.png',
+            preloadImages: []
+        });
+        $(function() {
+            function supportsLocalStorage() {
+                  try {
+                    return 'localStorage' in window && window['localStorage'] !== null;
+                } catch (e) {
+                    return false;
+                  }
+            }
+            function saveCoffee() {
+                if (!supportsLocalStorage()) { return false; }
+                localStorage[$("#coffee_name").val()] = JSON.stringify({
+                    'category': $('#category_list').val(),
+                    'taste': $("#coffee_taste").val()
+                });
+                location.reload();
+            }
+            function getList() {
+                if (!supportsLocalStorage()) { return false; }
+                var coffees = localStorage.length;
+                $('#list ul').html("");
+                for (var i = 0; i < coffees; i++) {
+                    try {
+                        var coffee_name = localStorage.key(i);
+                        var coffee = JSON.parse(localStorage[coffee_name]);
+                        $('#list ul').append('<li><a href="#view" title="' + coffee_name +'">' + coffee_name + ' <small>' + coffee['category'] + '</small></a></li>');
+                    } catch (e) { continue; }
+                }
+
+            }
+
+            function getCoffee() {
+                if (!supportsLocalStorage()) { return false; }
+                var coffee_name = this.title;
+
+                var coffee = JSON.parse(localStorage[coffee_name]);
+                var view = '<li>' + coffee['category'] + '</li>';
+                view += '<li>' + coffee['taste'] + '</li>';
+                $('#view ul').html(view);
+                $('#view h1').html(coffee_name);
+            }
+
+            getList();
+            $('#list ul a').click(getCoffee);
+            $('#add form').submit(saveCoffee);
+            $('#add .whiteButton').click(saveCoffee);
+        });
+    </script>
+  </head>
+
+<body>
+    <div id="jqt" class="">
+        <div id="start">
+            <div class="toolbar">
+                <h1>coffeeMan | Login</h1>
+            </div>
+            <form id="login" action="#" method="GET" class="form">
+                <ul class="rounded">
+                    <li><input type="email" name="email" placeholder="email@example.com" id="email" /></li>
+                    <li><input type="password" name="password" value="qwerty" id="password" /></li>
+                </ul>
+                <a href="#list" class="whiteButton dissolve">Login</a>
+            </form>
+        </div>
+        <div id="list">
+            <div class="toolbar">
+                <h1>coffeeMan</h1>
+                <a href="#start" class="leftButton button pop"><i class="fa fa-sign-out fa-lg"></i></a>
+                <!--a href="#logout" class="button"><i class="fa fa-sign-out fa-lg"></i></a-->
+                <a href="#add" class="button pop"><i class="fa fa-plus fa-lg"></i></a>
+            </div>
+            <ul class="edgetoedge scroll">
+                <li><a href="#haus" title="Хаус бленд">Хаус бленд <small>эспрессо</small></a></li>
+                <li><a href="#hazzelnut">Лесной орех <small>десерт</small></a></li>
+            </ul>
+        </div>
+        <div id="add">
+            <div class="toolbar">
+                <h1>coffeeMan | Add</h1>
+            </div>
+            <form action="#" method="GET" class="form">
+                <ul class="rounded">
+                    <li><input type="text" name="coffee_name" placeholder="Arabica" id="coffee_name" /></li>
+                    <li class="arrow">
+                        <select id="category_list">
+                            <option value="десерт"/>Десертный</option>
+                            <option value="эспрессо"/>Эспрессо</option>
+                            <option value="классика"/>Классический</option>
+                            <option value="микс"/>Микс</option>
+                        </select>
+                    </li>
+                    <li><input type="text" name="taste" placeholder="Taste" id="coffee_taste" /></li>
+                </ul>
+                <a href="#list" id="add_coffee" class="whiteButton dissolve">Add</a>
+            </form>
+        </div>
+        <div id="view">
+            <div class="toolbar">
+                <h1>coffeeMan</h1>
+                <a href="#list" class="back">К списку</a>
+            </div>
+            <ul class="edgetoedge scroll">
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
