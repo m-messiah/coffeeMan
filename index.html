@@ -1,27 +1,24 @@
 
 <!doctype html>
-<html manifest="cache.manifest">
+<!--html manifest="cache.manifest"-->
+<html>
   <head>
     <meta charset="UTF-8" />
     <title>coffeeMan</title>
 
-    <!-- Make the app title different than the page title. -->
-    <meta name="apple-mobile-web-app-title"
-          content="coffeeMan">
+    <meta name="apple-mobile-web-app-title" content="coffeeMan">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="/lib/css/innsbruck.min.css">
-    <link rel="stylesheet" href="/lib/css/font-awesome.min.css">
-    <script src="/lib/zepto.min.js" type="text/javascript" charset="utf-8"></script>
-    <script src="/lib/jqt.min.js" type="text/javascript" charset="utf-8"></script>
-    <script src="/lib/jqt.offline.min.js" type="application/x-javascript" charset="utf-8"></script>
+    <link rel="stylesheet" href="/lib/jquery.mobile-1.4.5.min.css" />
+    <script src="/lib/jquery-1.11.1.min.js"></script>
+    <script src="/lib/jquery.mobile-1.4.5.min.js"></script>
+
+    <style type="text/css">
+        .full-width-slider input {display: none;}
+        .full-width-slider .ui-slider-track {margin-left: 15px;}
+    </style>
+
     <script>
-        var jQT = new $.jQT({
-            icon: 'jqtouch.png',
-            statusBar: 'default',
-            cacheGetRequests: false,
-            icon: '/img/icon.png',
-            preloadImages: []
-        });
         $(function() {
             function supportsLocalStorage() {
                   try {
@@ -46,7 +43,7 @@
                     try {
                         var coffee_name = localStorage.key(i);
                         var coffee = JSON.parse(localStorage[coffee_name]);
-                        $('#list ul').append('<li><a href="#view" title="' + coffee_name +'">' + coffee_name + ' <small>' + coffee['category'] + '</small></a></li>');
+                        $('#list ul').append('<li><a href="#view" title="' + coffee_name +'">' + coffee_name + ' <span class="ui-li-count">' + coffee['category'] + '</span></a></li>');
                     } catch (e) { continue; }
                 }
 
@@ -68,60 +65,82 @@
             $('#add form').submit(saveCoffee);
             $('#add .whiteButton').click(saveCoffee);
         });
+        $( document ).on( "mobileinit", function() {
+            $.mobile.listview.prototype.options.autodividersSelector = function( elt ) {
+                // TODO: GET Category
+                var text = $.trim( elt.text() ) || null;
+                if ( !text ) {
+                    return null;
+                }
+                if ( !isNaN(parseFloat(text)) ) {
+                    return "0-9";
+                } else {
+                    text = text.slice( 0, 1 ).toUpperCase();
+                    return text;
+                }
+            };
+        });
     </script>
   </head>
 
 <body>
-    <div id="jqt" class="">
-        <div id="start">
-            <div class="toolbar">
-                <h1>coffeeMan | Login</h1>
-            </div>
-            <form id="login" action="#" method="GET" class="form">
-                <ul class="rounded">
-                    <li><input type="email" name="email" placeholder="email@example.com" id="email" /></li>
-                    <li><input type="password" name="password" value="qwerty" id="password" /></li>
-                </ul>
-                <a href="#list" class="whiteButton dissolve">Login</a>
+    <div data-role="page" id="start">
+        <div data-role="header">
+            <h1>coffeeMan | Login</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <form id="login" action="#" method="GET">
+                <input type="email" name="email" placeholder="email@example.com" id="email" />
+                <input type="password" name="password" value="qwerty" id="password" />
+                <a href="#list" class="ui-shadow ui-btn ui-corner-all">Войти</a>
             </form>
         </div>
-        <div id="list">
-            <div class="toolbar">
-                <h1>coffeeMan</h1>
-                <a href="#start" class="leftButton button pop"><i class="fa fa-sign-out fa-lg"></i></a>
-                <!--a href="#logout" class="button"><i class="fa fa-sign-out fa-lg"></i></a-->
-                <a href="#add" class="button pop"><i class="fa fa-plus fa-lg"></i></a>
-            </div>
-            <ul class="edgetoedge scroll">
-                <li><a href="#haus" title="Хаус бленд">Хаус бленд <small>эспрессо</small></a></li>
-                <li><a href="#hazzelnut">Лесной орех <small>десерт</small></a></li>
+    </div>
+    <div data-role="page" id="list">
+        <div data-role="header">
+            <h1>coffeeMan</h1>
+            <a href="#start" class="ui-nodisc-icon ui-alt-icon ui-btn ui-corner-all ui-btn-icon-left ui-icon-power ui-btn-icon-notext">Logout</a>
+            <!--a href="#logout" class="button"><i class="fa fa-sign-out fa-lg"></i></a-->
+            <a href="#add" class="ui-nodisc-icon ui-alt-icon ui-btn ui-corner-all ui-btn-icon-right ui-icon-plus ui-btn-icon-notext">Add</a>
+        </div>
+        <div role="main" class="ui-content">
+            <ul data-role="listview" data-filter="true" data-filter-placeholder="Фильтр" data-inset="false" class="ui-nodisc-icon ui-alt-icon" data-count-theme="b" data-autodividers="true">
+                <li><a href="#haus" title="Хаус бленд">Хаус бленд <span class="ui-li-count">эспрессо</span></a></li>
+                <li><a href="#hazzelnut">Лесной орех <span class="ui-li-count">десерт</span></a></li>
             </ul>
         </div>
-        <div id="add">
-            <div class="toolbar">
-                <h1>coffeeMan | Add</h1>
-            </div>
-            <form action="#" method="GET" class="form">
-                <ul class="rounded">
-                    <li><input type="text" name="coffee_name" placeholder="Arabica" id="coffee_name" /></li>
-                    <li class="arrow">
-                        <select id="category_list">
-                            <option value="десерт"/>Десертный</option>
-                            <option value="эспрессо"/>Эспрессо</option>
-                            <option value="классика"/>Классический</option>
-                            <option value="микс"/>Микс</option>
-                        </select>
-                    </li>
-                    <li><input type="text" name="taste" placeholder="Taste" id="coffee_taste" /></li>
-                </ul>
-                <a href="#list" id="add_coffee" class="whiteButton dissolve">Add</a>
+    </div>
+    <div data-role="page" id="add" class="ui-nodisc-icon ui-alt-icon">
+        <div data-role="header" data-add-back-btn="true" data-back-btn-text="К списку">
+            <h1>coffeeMan | Add</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <form action="#" method="GET">
+                <input type="text" name="coffee_name" placeholder="Arabica" id="coffee_name" />
+                <select id="category_list" data-mini="true">
+                    <option value="десерт"/>Десертный</option>
+                    <option value="эспрессо"/>Эспрессо</option>
+                    <option value="классика"/>Классический</option>
+                    <option value="микс"/>Микс</option>
+                </select>
+                <div class="full-width-slider">
+                    <label for="sugar">Горький</label>
+                    <input type="range" name="sugar" id="sugar" min="0" max="10" value="5" data-show-value="true">
+                    <label for="fruit">Фруктовый</label>
+                    <input type="range" name="fruit" id="fruit" min="0" max="10" value="5" data-show-value="true">
+                    <label for="choco">Шоколадный</label>
+                    <input type="range" name="choco" id="choco" min="0" max="10" value="5" data-show-value="true">
+                </div>
+
+                <a href="#list" id="add_coffee" class="ui-shadow ui-btn ui-corner-all">Добавить</a>
             </form>
         </div>
-        <div id="view">
-            <div class="toolbar">
-                <h1>coffeeMan</h1>
-                <a href="#list" class="back">К списку</a>
-            </div>
+    </div>
+    <div data-role="page" id="view" class="ui-nodisc-icon ui-alt-icon">
+        <div data-role="header" data-add-back-btn="true" data-back-btn-text="К списку">
+            <h1>coffeeMan</h1>
+        </div>
+        <div role="main" class="ui-content">
             <ul class="edgetoedge scroll">
             </ul>
         </div>
