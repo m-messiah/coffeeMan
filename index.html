@@ -12,10 +12,15 @@
     <link rel="stylesheet" href="/lib/jquery.mobile-1.4.5.min.css" />
     <script src="/lib/jquery-1.11.1.min.js"></script>
     <script src="/lib/jquery.mobile-1.4.5.min.js"></script>
+    <script src="/lib/highcharts.js"></script>
+    <script src="/lib/highcharts-more.js"></script>
 
     <style type="text/css">
         .full-width-slider input {display: none;}
         .full-width-slider .ui-slider-track {margin-left: 15px;}
+        .ui-li-divider:first-letter { text-transform: uppercase;}
+        .label-right {float: right;}
+        .view_coffee {width:90%; height:70%;}
     </style>
 
     <script>
@@ -29,9 +34,20 @@
             }
             function saveCoffee() {
                 if (!supportsLocalStorage()) { return false; }
-                localStorage[$("#coffee_name").val()] = JSON.stringify({
-                    'category': $('#category_list').val(),
-                    'taste': $("#coffee_taste").val()
+                var coffee_name = $("#coffee_name").val();
+                if (!coffee_name) return false;
+
+                localStorage[coffee_name] = JSON.stringify({
+                    'category': $('#category_list :radio:checked').val(),
+                    'coffee_sort': $('#coffee_sort').val(),
+                    'soft': $('#soft').val(),
+                    'saturation': $('#saturation').val(),
+                    'acid': $('#acid').val(),
+                    'spice': $('#spice').val(),
+                    'aroma': $('#aroma').val(),
+                    'taste': $('#taste').val(),
+                    'aftertaste': $('#aftertaste').val(),
+                    'other': $('#other').val(),
                 });
                 location.reload();
             }
@@ -43,7 +59,7 @@
                     try {
                         var coffee_name = localStorage.key(i);
                         var coffee = JSON.parse(localStorage[coffee_name]);
-                        $('#list ul').append('<li><a href="#view" title="' + coffee_name +'">' + coffee_name + ' <span class="ui-li-count">' + coffee['category'] + '</span></a></li>');
+                        $('#list ul').append('<li data-filter-text="' + coffee['category'] + '"><a href="#view" title="' + coffee_name +'">' + coffee_name + ' <span class="ui-li-count">' + coffee['category'] + '</span></a></li>');
                     } catch (e) { continue; }
                 }
 
@@ -54,31 +70,44 @@
                 var coffee_name = this.title;
 
                 var coffee = JSON.parse(localStorage[coffee_name]);
-                var view = '<li>' + coffee['category'] + '</li>';
-                view += '<li>' + coffee['taste'] + '</li>';
-                $('#view ul').html(view);
+
+                $('#view_coffee').highcharts({
+                    chart: {polar: true, type: 'line'},
+                    title: {text: coffee['category']},
+                    pane: {size: '60%' },
+                    legend: {enabled:false},
+                    xAxis: {
+                        categories: ['Терпкость', 'Насыщенность', 'Кислинка', 'Пряность', 'Аромат', 'Вкус', 'Послевкусие'],
+                        lineWidth: 0,
+                        tickmarkPlacement: 'on',
+                    },
+
+                    yAxis: { min: 0, max:10,  gridLineWidth: 0, gridLineInterpolation: 'polygon', label:{enabled:false}, showFirstLabel:false},
+
+                    /* 'soft' 'saturation' 'acid' 'spice' 'aroma' 'taste' 'aftertaste'*/
+                    series: [{
+                        type: 'area',
+                        name: 'Вкус',
+                        color: '#6F4E37',
+                        data: [
+                            parseInt(coffee['soft']),
+                            parseInt(coffee['saturation']),
+                            parseInt(coffee['acid']),
+                            parseInt(coffee['spice']),
+                            parseInt(coffee['aroma']),
+                            parseInt(coffee['taste']),
+                            parseInt(coffee['aftertaste'])],
+                        pointPlacement: 'on'
+                    }]
+                });
+
                 $('#view h1').html(coffee_name);
             }
 
             getList();
             $('#list ul a').click(getCoffee);
             $('#add form').submit(saveCoffee);
-            $('#add .whiteButton').click(saveCoffee);
-        });
-        $( document ).on( "mobileinit", function() {
-            $.mobile.listview.prototype.options.autodividersSelector = function( elt ) {
-                // TODO: GET Category
-                var text = $.trim( elt.text() ) || null;
-                if ( !text ) {
-                    return null;
-                }
-                if ( !isNaN(parseFloat(text)) ) {
-                    return "0-9";
-                } else {
-                    text = text.slice( 0, 1 ).toUpperCase();
-                    return text;
-                }
-            };
+            $('#add_coffee').click(saveCoffee);
         });
     </script>
   </head>
@@ -90,8 +119,8 @@
         </div>
         <div role="main" class="ui-content">
             <form id="login" action="#" method="GET">
-                <input type="email" name="email" placeholder="email@example.com" id="email" />
-                <input type="password" name="password" value="qwerty" id="password" />
+                <input data-clear-btn="true" type="email" name="email" placeholder="email@example.com" id="email" />
+                <input data-clear-btn="true" type="password" name="password" value="qwerty" id="password" />
                 <a href="#list" class="ui-shadow ui-btn ui-corner-all">Войти</a>
             </form>
         </div>
@@ -100,13 +129,10 @@
         <div data-role="header">
             <h1>coffeeMan</h1>
             <a href="#start" class="ui-nodisc-icon ui-alt-icon ui-btn ui-corner-all ui-btn-icon-left ui-icon-power ui-btn-icon-notext">Logout</a>
-            <!--a href="#logout" class="button"><i class="fa fa-sign-out fa-lg"></i></a-->
             <a href="#add" class="ui-nodisc-icon ui-alt-icon ui-btn ui-corner-all ui-btn-icon-right ui-icon-plus ui-btn-icon-notext">Add</a>
         </div>
         <div role="main" class="ui-content">
-            <ul data-role="listview" data-filter="true" data-filter-placeholder="Фильтр" data-inset="false" class="ui-nodisc-icon ui-alt-icon" data-count-theme="b" data-autodividers="true">
-                <li><a href="#haus" title="Хаус бленд">Хаус бленд <span class="ui-li-count">эспрессо</span></a></li>
-                <li><a href="#hazzelnut">Лесной орех <span class="ui-li-count">десерт</span></a></li>
+            <ul data-role="listview" data-filter="true" data-filter-placeholder="" data-inset="false" class="ui-nodisc-icon ui-alt-icon" data-count-theme="b" data-autodividers="true">
             </ul>
         </div>
     </div>
@@ -116,23 +142,32 @@
         </div>
         <div role="main" class="ui-content">
             <form action="#" method="GET">
-                <input type="text" name="coffee_name" placeholder="Arabica" id="coffee_name" />
-                <select id="category_list" data-mini="true">
-                    <option value="десерт"/>Десертный</option>
-                    <option value="эспрессо"/>Эспрессо</option>
-                    <option value="классика"/>Классический</option>
-                    <option value="микс"/>Микс</option>
-                </select>
+                <input data-clear-btn="true" type="text" name="coffee_name" placeholder="Arabica" id="coffee_name" />
+                <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" id="category_list">
+                    <legend>Категория</legend>
+                        <input type="radio" name="category_list" id="category_list-d" value="десерт" checked="checked"><label for="category_list-d">Десертный</label><input type="radio" name="category_list" id="category_list-e" value="эспрессо"><label for="category_list-e">Эспрессо</label><input type="radio" name="category_list" id="category_list-c" value="классика"><label for="category_list-c">Классика</label><input type="radio" name="category_list" id="category_list-m" value="микс"><label for="category_list-m">Микс</label>
+                </fieldset>
+                <label for="coffee_sort">Сорт</label>
+                <input data-clear-btn="true" type="text" name="coffee_sort" placeholder="Arabica" id="coffee_sort" />
                 <div class="full-width-slider">
-                    <label for="sugar">Горький</label>
-                    <input type="range" name="sugar" id="sugar" min="0" max="10" value="5" data-show-value="true">
-                    <label for="fruit">Фруктовый</label>
-                    <input type="range" name="fruit" id="fruit" min="0" max="10" value="5" data-show-value="true">
-                    <label for="choco">Шоколадный</label>
-                    <input type="range" name="choco" id="choco" min="0" max="10" value="5" data-show-value="true">
+                    <label for="soft">Терпкость</label>
+                    <input type="range" name="soft" id="soft" min="0" max="10" value="5" data-show-value="true">
+                    <label for="saturation">Насыщенность</label>
+                    <input type="range" name="saturation" id="saturation" min="0" max="10" value="5" data-show-value="true">
+                    <label for="acid">Кислинка</label>
+                    <input type="range" name="acid" id="acid" min="0" max="10" value="5" data-show-value="true">
+                    <label for="spice">Пряность</label>
+                    <input type="range" name="spice" id="spice" min="0" max="10" value="5" data-show-value="true">
+                    <label for="aroma">Аромат</label>
+                    <input type="range" name="aroma" id="aroma" min="0" max="10" value="5" data-show-value="true">
+                    <label for="taste">Вкус</label>
+                    <input type="range" name="taste" id="taste" min="0" max="10" value="5" data-show-value="true">
+                    <label for="aftertaste">Послевкусие</label>
+                    <input type="range" name="aftertaste" id="aftertaste" min="0" max="10" value="5" data-show-value="true">
                 </div>
-
-                <a href="#list" id="add_coffee" class="ui-shadow ui-btn ui-corner-all">Добавить</a>
+                <label for="other">Комментарии</label>
+                <textarea id="other" name="other"></textarea>
+                <a type="submit" href="#list" id="add_coffee" class="ui-shadow ui-btn ui-corner-all">Добавить</a>
             </form>
         </div>
     </div>
@@ -140,9 +175,8 @@
         <div data-role="header" data-add-back-btn="true" data-back-btn-text="К списку">
             <h1>coffeeMan</h1>
         </div>
-        <div role="main" class="ui-content">
-            <ul class="edgetoedge scroll">
-            </ul>
+        <div role="main" class="ui-content view_coffee" id="view_coffee">
+
         </div>
     </div>
 </body>
