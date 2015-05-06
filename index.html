@@ -9,11 +9,11 @@
     <meta name="apple-mobile-web-app-title" content="coffeeMan">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="/lib/jquery.mobile-1.4.5.min.css" />
-    <script src="/lib/jquery-1.11.1.min.js"></script>
-    <script src="/lib/jquery.mobile-1.4.5.min.js"></script>
-    <script src="/lib/highcharts.js"></script>
-    <script src="/lib/highcharts-more.js"></script>
+    <link rel="stylesheet" href="./lib/jquery.mobile-1.4.5.min.css" />
+    <script src="./lib/jquery-1.11.1.min.js"></script>
+    <script src="./lib/jquery.mobile-1.4.5.min.js"></script>
+    <script src="./lib/highcharts.js"></script>
+    <script src="./lib/highcharts-more.js"></script>
 
     <style type="text/css">
         .full-width-slider input {display: none;}
@@ -37,7 +37,7 @@
                 var coffee_name = $("#coffee_name").val();
                 if (!coffee_name) return false;
 
-                localStorage[coffee_name] = JSON.stringify({
+                localStorage["COFFEE_" + coffee_name] = JSON.stringify({
                     'category': $('#category_list :radio:checked').val(),
                     'coffee_sort': $('#coffee_sort').val(),
                     'soft': $('#soft').val(),
@@ -58,7 +58,9 @@
                 for (var i = 0; i < coffees; i++) {
                     try {
                         var coffee_name = localStorage.key(i);
+                        if (coffee_name.indexOf("COFFEE_") == -1) continue;
                         var coffee = JSON.parse(localStorage[coffee_name]);
+                        coffee_name = coffee_name.replace(/^COFFEE_/, '');
                         $('#list ul').append('<li data-filter-text="' + coffee['category'] + '"><a href="#view" title="' + coffee_name +'">' + coffee_name + ' <span class="ui-li-count">' + coffee['category'] + '</span></a></li>');
                     } catch (e) { continue; }
                 }
@@ -69,7 +71,7 @@
                 if (!supportsLocalStorage()) { return false; }
                 var coffee_name = this.title;
 
-                var coffee = JSON.parse(localStorage[coffee_name]);
+                var coffee = JSON.parse(localStorage["COFFEE_" + coffee_name]);
 
                 $('#view_coffee').highcharts({
                     chart: {polar: true, type: 'line'},
