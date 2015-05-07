@@ -1,14 +1,16 @@
 
 <!doctype html>
-<!--html manifest="cache.manifest"-->
-<html>
+<html manifest="cache.manifest">
   <head>
     <meta charset="UTF-8" />
     <title>coffeeMan</title>
 
     <meta name="apple-mobile-web-app-title" content="coffeeMan">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-transcluent" />
 
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
     <link rel="stylesheet" href="./lib/jquery.mobile-1.4.5.min.css" />
     <script src="./lib/jquery-1.11.1.min.js"></script>
     <script src="./lib/jquery.mobile-1.4.5.min.js"></script>
@@ -49,6 +51,7 @@
                     'aftertaste': $('#aftertaste').val(),
                     'other': $('#other').val(),
                 });
+                window.location.hash = "list";
                 location.reload();
             }
             function getList() {
@@ -139,15 +142,14 @@
         </div>
     </div>
     <div data-role="page" id="add" class="ui-nodisc-icon ui-alt-icon">
-        <div data-role="header" data-add-back-btn="true" data-back-btn-text="К списку">
+        <div data-role="header">
             <h1>coffeeMan | Add</h1>
+            <a href="#list" class="ui-nodisc-icon ui-alt-icon ui-btn ui-corner-all ui-btn-icon-left ui-icon-home ui-btn-icon-notext">Список</a>
         </div>
         <div role="main" class="ui-content">
-            <form action="#" method="GET">
+            <form action="#list" method="GET">
                 <input data-clear-btn="true" type="text" name="coffee_name" placeholder="Arabica" id="coffee_name" />
-                <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" id="category_list">
-                    <legend>Категория</legend>
-                        <input type="radio" name="category_list" id="category_list-d" value="десерт" checked="checked"><label for="category_list-d">Десертный</label><input type="radio" name="category_list" id="category_list-e" value="эспрессо"><label for="category_list-e">Эспрессо</label><input type="radio" name="category_list" id="category_list-c" value="классика"><label for="category_list-c">Классика</label><input type="radio" name="category_list" id="category_list-m" value="микс"><label for="category_list-m">Микс</label>
+                <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" id="category_list"><legend>Категория</legend><input type="radio" name="category_list" id="category_list-d" value="десерт" checked="checked"><label for="category_list-d">Десертный</label><input type="radio" name="category_list" id="category_list-e" value="эспрессо"><label for="category_list-e">Эспрессо</label><input type="radio" name="category_list" id="category_list-c" value="классика"><label for="category_list-c">Классика</label><input type="radio" name="category_list" id="category_list-m" value="микс"><label for="category_list-m">Микс</label>
                 </fieldset>
                 <label for="coffee_sort">Сорт</label>
                 <input data-clear-btn="true" type="text" name="coffee_sort" placeholder="Arabica" id="coffee_sort" />
@@ -174,8 +176,9 @@
         </div>
     </div>
     <div data-role="page" id="view" class="ui-nodisc-icon ui-alt-icon">
-        <div data-role="header" data-add-back-btn="true" data-back-btn-text="К списку">
+        <div data-role="header">
             <h1>coffeeMan</h1>
+            <a href="#list" class="ui-nodisc-icon ui-alt-icon ui-btn ui-corner-all ui-btn-icon-left ui-icon-home ui-btn-icon-notext">Список</a>
         </div>
         <div role="main" class="ui-content view_coffee" id="view_coffee">
 
